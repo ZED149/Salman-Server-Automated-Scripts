@@ -7,10 +7,13 @@
 # importing some important files
 import sqlite3
 import os
+from dotenv import load_dotenv
 
+# loading enviornmental variables into our scope
+load_dotenv()
 
 # GLOBAL Variables
-DB_NAME = "movies.db"
+DB_NAME = os.getenv('DB_NAME')
 CURR_DIR = os.getcwd()
 WORKING_DIR = "Z:\\movies"
 

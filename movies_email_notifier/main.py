@@ -24,10 +24,10 @@ load_dotenv()
 
 # GLOBAL
 WORKING_DIR: str = "E:\\movies\\watched"                # root directory to walk on
-DB_NAME: str = "movies.db"                                  # name of the DB to check with
+DB_NAME: str = os.getenv('DB_NAME')                                  # name of the DB to check with
 MOVIES: list                                                # placeholder to store fetched movie names
 NEW_MOVIES_ADDED: list = []                                 # placeholder to store new movie names that are uploaded
-EXCEL_FILE = 'info.xlsx'
+EXCEL_FILE = os.getenv('EXCEL_FILE')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 EMAIL_USERNAME = os.getenv('EMAIL_USERNAME')
 
