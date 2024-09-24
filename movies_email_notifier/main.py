@@ -17,6 +17,7 @@ import pandas as pd
 import numpy
 from path import Path
 from dotenv import load_dotenv
+import email.utils
 
 
 # loading our ENVIRONMENTAL VARIABLES into our scope
@@ -30,6 +31,7 @@ NEW_MOVIES_ADDED: list = []                                 # placeholder to sto
 EXCEL_FILE = os.getenv('EXCEL_FILE')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 EMAIL_USERNAME = os.getenv('EMAIL_USERNAME')
+DISPLAY_NAME = os.getenv("DISPLAY_NAME")
 
 
 # CONFIGURATIONS
@@ -39,7 +41,7 @@ def send_email_core(username: str, receiver: str,
                     message: str, host: str, port: int, context,
                     password: str) -> None:
     msg = MIMEMultipart()
-    msg['From'] = username
+    msg['From'] = email.utils.formataddr((DISPLAY_NAME, username))
     msg['To'] = receiver
     msg['Subject'] = 'Salman Server, ZED'
 
