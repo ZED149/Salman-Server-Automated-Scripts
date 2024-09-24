@@ -56,7 +56,7 @@ def db_fetch_movie_names() -> list:
         conn = sqlite3.connect(DB_NAME)
     except sqlite3.OperationalError as e:
         # send email to the server admin regarding failure to connect to the movies DB
-        host = "smtp.gmail.com"
+        host = "smtpout.secureserver.net"
         port = 465
 
         username = EMAIL_USERNAME
@@ -100,7 +100,7 @@ def send_email(first_name, last_name, email) -> None:
     :return:            None
     """
 
-    host = "smtp.gmail.com"
+    host = "smtpout.secureserver.net"
     port = 465
 
     username = EMAIL_USERNAME
