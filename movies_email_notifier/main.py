@@ -14,10 +14,10 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pandas as pd
-import numpy
-from path import Path
 from dotenv import load_dotenv
-import email.utils
+from message_generator import MessageGenerator
+from email.mime.image import MIMEImage
+from datetime import datetime
 
 
 # loading our ENVIRONMENTAL VARIABLES into our scope
@@ -40,13 +40,28 @@ DISPLAY_NAME = os.getenv("DISPLAY_NAME")
 def send_email_core(username: str, receiver: str,
                     message: str, host: str, port: int, context,
                     password: str) -> None:
-    msg = MIMEMultipart()
-    msg['From'] = email.utils.formataddr((DISPLAY_NAME, username))
+    msg = MIMEMultipart('related')
+    # msg['From'] = email.utils.formataddr((DISPLAY_NAME, username))
+    msg['From'] = username
     msg['To'] = receiver
-    msg['Subject'] = 'Salman Server, ZED'
+    msg['Subject'] = 'New Movies Added'
+    msg.preamble = "This is a multi-part message in MIME format."
 
-    msg.attach(MIMEText(message))
+    msgAlternative = MIMEMultipart('alternative')
+    msg.attach(msgAlternative)
+    msgText = MIMEText("This is the alternative plain text message.")
+    msgAlternative.attach(msgText)
 
+    msgText = MIMEText(message, 'html')
+    msgAlternative.attach(msgText)
+
+    with open('test.png', 'rb') as fb:
+        msgImage = MIMEImage(fb.read())
+
+    msgImage.add_header('Content-ID', '<image1>')
+    msg.attach(msgImage)
+
+    # send email    
     with smtplib.SMTP_SSL(host, port, context=context) as server:
         server.login(username, password)
         server.sendmail(username, receiver, msg.as_string())
@@ -112,20 +127,17 @@ def send_email(first_name, last_name, email) -> None:
     context = ssl.create_default_context()
 
     # message string
-    message = (f"""{first_name} {last_name} new movies have been uploaded to the server.
-List of movies uploaded...
-""")
-    
-    # creating list of movies that were found
-    list_of_movies = ""
-    for index, movie in enumerate(NEW_MOVIES_ADDED):
-        list_of_movies = list_of_movies + f'{str((index + 1))}: {movie}\n'
-    
-    # appending list of movies to the message
-    message = message + list_of_movies
+    message = MessageGenerator.no_reply_movies_added(first_name, NEW_MOVIES_ADDED)
 
     # core functionality to send email
     send_email_core(username, receiver, message, host, port, context, password)
+
+    # logging to the log file
+    date = datetime.now().strftime("%d-%m-%Y, %H:%M:%S")
+    with open('log', 'a') as file:
+        file.write(f"[SERVER] Email sent on {date}.\n")
+
+    
 
 def iterate_and_send_email():
     # read Excel file
@@ -153,4 +165,9 @@ if len(NEW_MOVIES_ADDED) > 0:
     print("Sending Emails to the recipients.")
     iterate_and_send_email()
 else:
+    # log to the file either an email was sent or not
+    # logging to file
+    date = datetime.now().strftime("%d-%m-%y, %H:%M:%S")
+    with open('log', 'a') as file:
+        file.write(f"[SERVER] Email not sent on {date}.\n")
     print("No new movies found.")

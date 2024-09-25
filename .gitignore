@@ -2,3 +2,6 @@ movies_email_notifier/.env
 movies_email_notifier/info.xlsx
 movies_email_notifier/.idea
 movies_email_notifier/test.py
+movies_email_notifier/__pycache__
+movies_email_notifier/test.png
+movies_email_notifier/test.py
