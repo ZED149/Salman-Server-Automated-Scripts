@@ -18,16 +18,13 @@ from dotenv import load_dotenv
 from message_generator import MessageGenerator
 from email.mime.image import MIMEImage
 from datetime import datetime
-from email.utils import formataddr
-from email.message import EmailMessage
-from email.header import Header
 
 
 # loading our ENVIRONMENTAL VARIABLES into our scope
 load_dotenv()
 
 # GLOBAL
-WORKING_DIR: str = "E:\\media\\movies\\not watched"                # root directory to walk on
+WORKING_DIR: str = "/media/myfiles/movies"                # root directory to walk on
 DB_NAME: str = os.getenv('DB_NAME')                                  # name of the DB to check with
 MOVIES: list                                                # placeholder to store fetched movie names
 NEW_MOVIES_ADDED: list = []                                 # placeholder to store new movie names that are uploaded
@@ -44,11 +41,10 @@ def send_email_core(username: str, receiver: str,
                     message: str, host: str, port: int, context,
                     password: str) -> None:
     msg = MIMEMultipart('related')
-    # msg = EmailMessage()
     # msg['From'] = email.utils.formataddr((DISPLAY_NAME, username))
-    msg['From'] = formataddr((str(Header('ZED', 'utf-8')), username))
+    msg['From'] = username
     msg['To'] = receiver
-    msg['Subject'] = 'Test Mail'
+    msg['Subject'] = 'New Movies Available'
     msg.preamble = "This is a multi-part message in MIME format."
 
     msgAlternative = MIMEMultipart('alternative')
@@ -59,7 +55,7 @@ def send_email_core(username: str, receiver: str,
     msgText = MIMEText(message, 'html')
     msgAlternative.attach(msgText)
 
-    with open('test.png', 'rb') as fb:
+    with open('/home/zed149/automated_scripts/salmanserver_script/test.png', 'rb') as fb:
         msgImage = MIMEImage(fb.read())
 
     msgImage.add_header('Content-ID', '<image1>')
@@ -100,7 +96,8 @@ Error occurred while trying to connect to the database is:
     conn.close()
     return [m[0] for m in movies]
 MOVIES = db_fetch_movie_names()
-
+for m in MOVIES:
+	print(m)
 
 # add_to_DB
 def add_to_db(name: str) -> None:
@@ -136,6 +133,12 @@ def send_email(first_name, last_name, email) -> None:
     # core functionality to send email
     send_email_core(username, receiver, message, host, port, context, password)
 
+    # logging to the log file
+    date = datetime.now().strftime("%d-%m-%Y, %H:%M:%S")
+    with open('/home/zed149/automated_scripts/salmanserver_script/log', 'a') as file:
+        file.write(f"[SERVER] Email sent on {date}.\n")
+
+    
 
 def iterate_and_send_email():
     # read Excel file
@@ -144,10 +147,6 @@ def iterate_and_send_email():
     for index, row in df.iterrows():
         send_email(row['First Name'], row['Last Name'], row['Email'])
 
-    # logging to the log file
-    date = datetime.now().strftime("%d-%m-%Y, %H:%M:%S")
-    with open('log', 'a') as file:
-        file.write(f"[SERVER] Email sent on {date}.\n")
 # MAIN
 # iterating on root directory
 for root, folders, files in os.walk(WORKING_DIR):
@@ -170,6 +169,6 @@ else:
     # log to the file either an email was sent or not
     # logging to file
     date = datetime.now().strftime("%d-%m-%y, %H:%M:%S")
-    with open('log', 'a') as file:
+    with open('/home/zed149/automated_scripts/salmanserver_script/log', 'a') as file:
         file.write(f"[SERVER] Email not sent on {date}.\n")
     print("No new movies found.")
